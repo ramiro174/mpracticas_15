@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Mobile</title>
+	<link rel="stylesheet" href="css/estructura.css">
+	<link rel="stylesheet" href="css/ramiro.css">
+	<link rel="stylesheet" href="css/icons.min.css">
+	<script type="text/javascript" src="js/jquery-1.11.1.js"></script>
+	
+	<script type="text/javascript" >
+		var num;
+		var Lista_Contactos;
+
+		$(document).on("mobileinit", function() {
+			console.log("jquery mobile termino de cargar")
+		})
+
+		$(document).ready(function() {
+			//$.mobile.defaultPageTransition='slide';
+
+
+
+			$("#inicio").on("pagecreate",function(){
+
+				$.ajax({
+					url: 'http://jqm.renuevaweb.org/mpracticas_15/inc/Contactos.php',
+					type: 'POST',
+					dataType: 'json',
+					//data: {param1: 'value1'},
+				})
+				.done(function(datos) {
+
+					Lista_Contactos=datos;
+					$.each(datos, function(index, val) {
+						
+						var   item="<li><a class=\"Contacto\" href=\"#pagetelefono\" data-value=\""+index+"\">"+val.Nombre+"</a></li>"
+						$("#Contactanos").append(item).listview( "refresh" ) 
+
+						
+					});
+				})
+				.fail(function() {
+					console.log("error");
+				})
+				.always(function() {
+					console.log("complete");
+				});
+
+
+
+			})
+
+
+			$("#inicio").on("click",".Contacto",function(event){
+				event.preventDefault();
+
+				num=$(this).attr('data-value');
+
+				$.mobile.changePage( "#pagetelefono",{transition:"pop"});
+
+
+			})
+
+			$("#pagetelefono").on("pagebeforeshow",function(){
+
+				$("#Telefonos").html("");
+			})	
+
+
+
+
+
+
+			$("#pagetelefono").on("pageshow",function(){
+
+				console.log(num)
+				console.log(Lista_Contactos[num]);
+				var Telefonos=Lista_Contactos[num].Telefonos;	
+
+
+
+				$.each(Telefonos, function(index, val) {
+					
+
+					var   item="<li>"+val.Numero+"</a></li>"
+					$("#Telefonos").append(item).listview( "refresh" ) 
+				});
+
+			})
+
+
+
+
+			$("#Agregar_Contacto").on("click","#Guardar_Contacto",function(e){
+				e.preventDefault();	
+					 var T=new Array();
+
+
+					$.each($(".TelefonoContacto"), function(index, inputT) {
+						 
+
+						 	ot={Numero:$(inputT).val()}
+						 	T.push(ot);
+
+					});
+
+
+				    var	datosen={
+				    				Nombre:$("#NombreContacto").val(),
+				    				Telefonos:T
+				    }
+				   
+
+				    console.log(datosen);
+
+				$.ajax({
+					url: 'http://jqm.renuevaweb.org/mpracticas_15/inc/GuardarContacto.php',
+					data:datosen,
+					type: 'POST',
+					dataType: 'json'
+			})
+				.done(function(datos) {
+					console.log(datos);
+				})
+				.fail(function() {
+					console.log("error");
+				})
+				.always(function() {
+					console.log("complete");
+				});
+
+
+			})
+			$("#Agregar_Contacto").on("click","#Agregar_Telefono",function(e){
+								item=$("<i><div data-role=\"fieldcontain\">	<label for=\"\">Telefono</label><input class=\"TelefonoContacto\" type=\"text\" name=\"Numero\" id=\"\" value=\"\" /></div></li>");
+
+								$("#Lista_Telefonos").append(item).listview("refresh");
+								$('input').textinput(); 
+
+			})
+
+
+			
+		});
+
+	</script>
+	<script type="text/javascript" src="js/jquery.mobile-1.4.5.js"></script>
+</head>
+<body>
+
+	<section id="inicio" data-role="page">
+		<header data-role="header">
+			<h1>Agenda</h1>
+
+			<a href="#Agregar_Contacto" data-role="button">Agregar Contacto</a> 
+		</header><!-- /header -->
+		<article data-role="content">
+
+			
+
+			<ul data-role="listview" id="Contactanos" data-filter="true">
+				
+			</ul>
+		</article><!-- /content -->
+		<footer data-role="footer" data-position="fixed">
+			<h1>Curso de jquery mobile :)</h1>
+		</footer><!-- /footer -->
+	</section><!-- /page -->
+
+
+
+	<section id="pagetelefono" data-role="page">
+		<header data-role="header">
+			<h1>Header</h1>
+		</header><!-- /header -->
+		<article data-role="content">
+
+			<ul data-role="listview" id="Telefonos">
+
+			</ul>
+
+		</article><!-- /content -->
+		<footer data-role="footer" data-position="fixed">
+
+
+			<nav data-role="navbar">
+				<ul>
+					<li><a href="#inicio">Directorio</a></li>
+					<li><a href="#">Acerca de</a></li>
+
+				</ul>
+
+			</nav>
+		</footer><!-- /footer -->
+	</section><!-- /page -->
+
+
+
+	<section id="Agregar_Contacto" data-role="page">
+		<header data-role="header">
+			<h1>Header</h1>
+		</header><!-- /header -->
+		<article data-role="content">
+			<form action="">
+				<div data-role="fieldcontain">
+					<label for="">Nombre</label>
+					<input type="text" name="" id="NombreContacto" value="" />
+					
+
+				</div>
+				<div data-role="fieldcontain">
+					<label for="">Telefonos</label>
+					
+					<a href="#" data-role="button" id="Agregar_Telefono">+</a>
+				</div>
+				<div data-role="fieldcontain">
+				 <ol data-role="listview"  id="Lista_Telefonos">
+				 
+				</ol>
+				</div>
+
+
+
+				
+				
+			</form>
+
+
+
+
+
+			
+
+
+
+
+		</article><!-- /content -->
+		<footer data-role="footer" data-position="fixed">
+			<a href="#" data-role="button" id="Guardar_Contacto">Guardar</a>		
+		</footer><!-- /footer -->
+	</section><!-- /page -->
+
+</body>
+</html>
+
+
